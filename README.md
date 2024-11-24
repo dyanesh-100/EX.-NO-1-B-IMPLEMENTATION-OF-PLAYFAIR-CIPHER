@@ -16,161 +16,59 @@ STEP-4: Group the plain text in pairs and match the corresponding corner letters
 STEP-5: Display the obtained cipher text.
 
 ## PROGRAM:
-```
-def toLowerCase(text):
-	return text.lower()
+#include<stdio.h>
+#include<string.h>
 
-def removeSpaces(text):
-	newText = ""
-	for i in text:
-		if i == " ":
-			continue
-		else:
-			newText = newText + i
-	return newText
+int main() {
+    unsigned int a[3][3] = {{6, 24, 1}, {13, 16, 10}, {20, 17, 15}};
+    unsigned int b[3][3] = {{8, 5, 10}, {21, 8, 21}, {21, 12, 8}};
+    int i, j, k, t;
+    unsigned int c[3], d[3];
+    char msg[4];
 
-def Diagraph(text):
-	Diagraph = []
-	group = 0
-	for i in range(2, len(text), 2):
-		Diagraph.append(text[group:i])
+    printf("Enter plain text (3 letters): ");
+    scanf("%3s", msg);  // Limiting input to 3 characters
 
-		group = i
-	Diagraph.append(text[group:])
-	return Diagraph
+    for (i = 0; i < 3; i++) {
+        c[i] = msg[i] - 65;  // Converting letters to numbers (A=0, B=1, ..., Z=25)
+    }
 
-def FillerLetter(text):
-	k = len(text)
-	if k % 2 == 0:
-		for i in range(0, k, 2):
-			if text[i] == text[i+1]:
-				new_word = text[0:i+1] + str('x') + text[i+1:]
-				new_word = FillerLetter(new_word)
-				break
-			else:
-				new_word = text
-	else:
-		for i in range(0, k-1, 2):
-			if text[i] == text[i+1]:
-				new_word = text[0:i+1] + str('x') + text[i+1:]
-				new_word = FillerLetter(new_word)
-				break
-			else:
-				new_word = text
-	return new_word
+    // Encryption
+    for (i = 0; i < 3; i++) {
+        t = 0;
+        for (j = 0; j < 3; j++) {
+            t += a[i][j] * c[j];
+        }
+        d[i] = t % 26;
+    }
 
+    printf("\nEncrypted Cipher Text: ");
+    for (i = 0; i < 3; i++) {
+        printf("%c", d[i] + 65);  // Converting numbers back to letters
+    }
 
-list1 = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'k', 'l', 'm',
-		'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
+    // Decryption
+    for (i = 0; i < 3; i++) {
+        t = 0;
+        for (j = 0; j < 3; j++) {
+            t += b[i][j] * d[j];
+        }
+        c[i] = t % 26;
+    }
 
-# Function to generate the 5x5 key square matrix
-def generateKeyTable(word, list1):
-	key_letters = []
-	for i in word:
-		if i not in key_letters:
-			key_letters.append(i)
+    printf("\nDecrypted Cipher Text: ");
+    for (i = 0; i < 3; i++) {
+        printf("%c", c[i] + 65);  // Converting numbers back to letters
+    }
 
-	compElements = []
-	for i in key_letters:
-		if i not in compElements:
-			compElements.append(i)
-	for i in list1:
-		if i not in compElements:
-			compElements.append(i)
+    printf("\n");
 
-	matrix = []
-	while compElements != []:
-		matrix.append(compElements[:5])
-		compElements = compElements[5:]
-	return matrix
-
-def search(mat, element):
-	for i in range(5):
-		for j in range(5):
-			if(mat[i][j] == element):
-				return i, j
-
-def encrypt_RowRule(matr, e1r, e1c, e2r, e2c):
-	char1 = ''
-	if e1c == 4:
-		char1 = matr[e1r][0]
-	else:
-		char1 = matr[e1r][e1c+1]
-
-	char2 = ''
-	if e2c == 4:
-		char2 = matr[e2r][0]
-	else:
-		char2 = matr[e2r][e2c+1]
-	return char1, char2
-
-def encrypt_ColumnRule(matr, e1r, e1c, e2r, e2c):
-	char1 = ''
-	if e1r == 4:
-		char1 = matr[0][e1c]
-	else:
-		char1 = matr[e1r+1][e1c]
-
-	char2 = ''
-	if e2r == 4:
-		char2 = matr[0][e2c]
-	else:
-		char2 = matr[e2r+1][e2c]
-
-	return char1, char2
-
-def encrypt_RectangleRule(matr, e1r, e1c, e2r, e2c):
-	char1 = ''
-	char1 = matr[e1r][e2c]
-
-	char2 = ''
-	char2 = matr[e2r][e1c]
-	return char1, char2
-
-
-def encryptByPlayfairCipher(Matrix, plainList):
-	CipherText = []
-	for i in range(0, len(plainList)):
-		c1 = 0
-		c2 = 0
-		ele1_x, ele1_y = search(Matrix, plainList[i][0])
-		ele2_x, ele2_y = search(Matrix, plainList[i][1])
-
-		if ele1_x == ele2_x:
-			c1, c2 = encrypt_RowRule(Matrix, ele1_x, ele1_y, ele2_x, ele2_y)
-			# Get 2 letter cipherText
-		elif ele1_y == ele2_y:
-			c1, c2 = encrypt_ColumnRule(Matrix, ele1_x, ele1_y, ele2_x, ele2_y)
-		else:
-			c1, c2 = encrypt_RectangleRule(
-				Matrix, ele1_x, ele1_y, ele2_x, ele2_y)
-
-		cipher = c1 + c2
-		CipherText.append(cipher)
-	return CipherText
-
-text_Plain = 'instruments'
-text_Plain = removeSpaces(toLowerCase(text_Plain))
-PlainTextList = Diagraph(FillerLetter(text_Plain))
-if len(PlainTextList[-1]) != 2:
-	PlainTextList[-1] = PlainTextList[-1]+'z'
-
-key = "Monarchy"
-print("Key text:", key)
-key = toLowerCase(key)
-Matrix = generateKeyTable(key, list1)
-
-print("Plain Text:", text_Plain)
-CipherList = encryptByPlayfairCipher(Matrix, PlainTextList)
-
-CipherText = ""
-for i in CipherList:
-	CipherText += i
-print("CipherText:", CipherText)
-```
+return 0;
+}
 
 ## OUTPUT:
-![image](https://github.com/AnnBlessy/EX.-NO-1-B-IMPLEMENTATION-OF-PLAYFAIR-CIPHER/assets/119477835/2e30f488-7d3e-4019-b21e-8f01064f0126)
+![Screenshot 2024-09-11 094351](https://github.com/user-attachments/assets/e7c4b989-ab4e-4fcc-96a8-50db62705864)
+
 
 ## RESULT:
   Thus the Playfair cipher substitution technique had been implemented successfully.
